@@ -11,8 +11,8 @@ class Command(str, Enum):
     WRITE = "write"
     READ = "read"
     CHECK = "check"
-    DEBUG_CLIENTS_FOR_PIN = "getNamesOfAllClientsForPin"
-    DEBUG_ALL_CLIENTS = "getNamesOfAllClientsForAllPins"
+    PIN_INFO = "getPinInfo"
+    ALL_PINS_INFO = "getAllPinsInfo"
 
 class PinRequest(TypedDict):
     command: str

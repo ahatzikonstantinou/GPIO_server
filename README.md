@@ -64,7 +64,7 @@ pip install gpiod
 1. Clone and enter the project:
 
    ```bash
-   git clone https://github.com/yourname/gpio_server.git
+   git clone https://github.com/ahatzikonstantinou/gpio_server.git
    cd gpio_server
    ```
 
@@ -145,8 +145,8 @@ Description=GPIO TCP Server using libgpiod
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/gpio_server/gpio_server.py
-WorkingDirectory=/home/pi/gpio_server
+ExecStart=/usr/bin/python3 /opt/GPIO_server/gpio_server.py
+WorkingDirectory=/opt/GPIO_server/
 Restart=always
 User=pi
 Group=pi
@@ -164,7 +164,7 @@ WantedBy=multi-user.target
 ## 📁 Project Structure
 
 ```
-gpio_server/
+GPIO_server/
 ├── gpio_server.py         # TCP server
 ├── gpio_client.py         # Python client library
 ├── gpio_types.py          # Enums and type hints
@@ -201,3 +201,103 @@ sudo systemctl daemon-reload
 ## 📬 License
 
 MIT (or your preferred license)
+
+
+## 🔧 Making the GPIO Client Library Globally Available
+
+If you want all applications and users on your Raspberry Pi to access the `gpio_client.py` and `gpio_types.py` library from a shared location (e.g. `/opt/GPIO_server`), you can set the `PYTHONPATH` environment variable system-wide.
+
+### 📁 Step 1: Place the Library
+
+Move or copy the library files to a shared directory:
+
+```bash
+mkdir -p /opt/gpio_lib
+cp gpio_client.py gpio_types.py /opt/gpio_lib/
+```
+
+(Optional) Add an `__init__.py` file to make it a proper Python module:
+
+```bash
+touch /opt/gpio_lib/__init__.py
+```
+
+---
+
+### 🛠️ Step 2: Set PYTHONPATH System-Wide
+
+To make this path available to all users and apps:
+
+#### Option A: Add to `/etc/profile` (login shells)
+
+```bash
+sudo nano /etc/profile
+```
+
+Add this line at the end:
+
+```bash
+export PYTHONPATH=/opt/gpio_lib${PYTHONPATH:+:$PYTHONPATH}
+```
+
+#### Option B: Add to `/etc/bash.bashrc` (non-login shells)
+
+```bash
+sudo nano /etc/bash.bashrc
+```
+
+Add the same line:
+
+```bash
+export PYTHONPATH=/opt/gpio_lib${PYTHONPATH:+:$PYTHONPATH}
+```
+
+---
+
+### 🔄 Step 3: Apply Changes
+
+To apply the changes immediately:
+
+```bash
+source /etc/profile
+```
+
+Or reboot the system:
+
+```bash
+sudo reboot
+```
+
+Verify the path is active:
+
+```bash
+echo $PYTHONPATH
+```
+
+You should see `/opt/gpio_lib` included.
+
+---
+
+### 🧪 Step 4: Import from Anywhere
+
+Now any Python script can import the library:
+
+```python
+from gpio_client import GPIOClient
+from gpio_types import Direction
+```
+
+---
+
+### 🧼 Optional: Use a Wrapper Script for Apps
+
+If you're launching apps via systemd or shell scripts, you can create a wrapper that sets the path before execution:
+
+```bash
+#!/bin/bash
+export PYTHONPATH=/opt/gpio_lib${PYTHONPATH:+:$PYTHONPATH}
+exec python3 /opt/gpio_lib/gpio_server.py
+```
+
+Then point your systemd service to this script.
+
