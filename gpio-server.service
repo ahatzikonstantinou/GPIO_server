@@ -3,11 +3,9 @@ Description=GPIO TCP Server using libgpiod
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/gpio_server/gpio_server.py
-WorkingDirectory=/opt/gpio_server
+ExecStart=/usr/bin/python3 /opt/GPIO_server/gpio_server.py
+WorkingDirectory=/opt/GPIO_server
 Restart=always
-User=pi
-Group=pi
 StandardOutput=journal
 StandardError=journal
 
